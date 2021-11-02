@@ -1,52 +1,88 @@
 void game() {
 
-  background(bg);
-  strokeWeight(5);
-  stroke(255);
-  fill(0);
-
-  //paddle=================
-  circle(px, py, pd);
-  if (akey == true) px = px - 5;
-  if (dkey == true) px = px + 5;
-
-  //ball====================
-  circle(bx, by, bd);
-  bx = bx + vx;
-  by = by + vy;
-
-  if (dist(bx, by, px, py) < br + pr) {
-    vx = (bx - px) / 15;
-    vy = (by - py) / 15;
-  }
-
-  if (bx < br || bx > width - br) {
-    vx = vx * -1;
-  } 
-  if (by < br || by > height - br) {
-    vy = vy * -1;
-  }
+  room();
+  obj();
+  d();
+  minimap();
+}
 
 
-  //bricks===================================
 
-  int i = 0;
-  while (i < n) { 
-    
-    if(y[i] == 50) fill(orange);
-    if(y[i] == 150) fill(yellow);
-    if(y[i] == 250) fill(green);
-    if(y[i] == 350) fill(purple);
-    
-    stroke(255);
-    strokeWeight(2);
-    circle(x[i], y[i], brickd);
 
-    if (dist(bx, by, x[i], y[i]) < bd/2 + brickd/2) {
-      vx = (bx - x[i]) / 15;
-      vy = (by - y[i]) / 15;
+
+
+
+
+
+void room() {
+
+  rectMode(CENTER);
+  strokeWeight(3);
+  fill(mgrey);
+  image(bg, width/2, height/2, width, height);
+  strokeWeight(3);
+  stroke(#838FCE);
+  line(0, 0, width, height);
+  line(width, 0, 0, height);
+
+  // exits
+  nRoom = map.get(myPlayer.roomX, myPlayer.roomY-1);
+  sRoom = map.get(myPlayer.roomX, myPlayer.roomY+1);
+  eRoom = map.get(myPlayer.roomX+1, myPlayer.roomY);
+  wRoom = map.get(myPlayer.roomX-1, myPlayer.roomY);
+  // doors
+  noStroke();
+  fill(black);
+  if (nRoom != white) circle(width/2, height*0.1, 100);
+  if (sRoom != white) circle(width/2, height*0.9, 100);
+  if (eRoom != white) circle(width*0.9, height/2, 100);
+  if (wRoom != white) circle(width*0.1, height/2, 100);
+
+  fill(black);
+  rect(width/2, height/2, width*0.8, height*0.8);
+  image(floor, width/2, height/2, width*0.8-20, height*0.8-20);
+}
+
+
+
+void obj() {
+  for (int i = 0; i < myObjects.size(); i++) {
+    GameObject myObj = myObjects.get(i);
+    myObj.show();
+    myObj.act();
+
+    if (myObj.hp <= 0) {
+      myObjects.remove(i);
+      i--;
     }
-
-    i=i+1;
   }
+}
+
+
+
+void d() {
+  lightlayer.show();
+}
+
+void minimap() {
+  int x = 0, y = 0;
+  int x1 = 30, y1 = 30;
+  float size = 7;
+  while (y <= map.height) {
+    color c = map.get(x, y);
+    fill(c, 150);
+    square(x1, y1, size);
+    x++;
+    x1 += size;
+    if (x >= map.width) {
+      x = 0;
+      y++;
+      x1 = 30;
+      y1 += size;
+    }
+  }
+
+  fill(lyellowg);
+  
+  circle(myPlayer.roomX*7+30+size/2, myPlayer.roomY*7+30+size/2, size*0.8);
 }
